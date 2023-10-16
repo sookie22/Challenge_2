@@ -1,0 +1,154 @@
+Sub Stock_analysis_REVISED()
+
+    'Looping through each worksheet 2018, 19 and 20 in this workbook
+    For Each ws In Worksheets
+        ws.Activate 'Activating the current worksheet
+        
+        'Declaring variables
+        Dim i As Long
+        
+        Dim LastRow_colA As Long
+        Dim LastRow_colI As Long
+        
+        Dim PercentChange As Double
+        Dim GreatIncrease As Double
+        Dim GreatDecrease As Double
+        Dim GreatVol As Double
+        
+        'Column Creation
+        ws.Cells(1, "I").Value = "Ticker"
+        ws.Cells(1, "J").Value = "Yearly Change"
+        ws.Cells(1, "K").Value = "Percent Change"
+        ws.Cells(1, "L").Value = "Total Stock Volume"
+        
+        ws.Cells(1, "P").Value = "Ticker"
+        ws.Cells(1, "Q").Value = "Value"
+        
+        ws.Cells(2, "O").Value = "Greatest % Increase"
+        ws.Cells(3, "O").Value = "Greatest % Decrease"
+        ws.Cells(4, "O").Value = "Greatest Total Volume"
+    
+        
+        Summary_pointer = 2
+        Total_volume = 0
+        Open_price = Cells(2, "C").Value
+        
+        
+        
+        LastRow_colA = ws.Cells(Rows.Count, "A").End(xlUp).Row
+        
+        For i = 2 To LastRow_colA
+        
+            If Cells(i, "A").Value = Cells(i + 1, "A").Value Then
+                Total_volume = Total_volume + Cells(i, "G").Value
+                      
+            Else
+                Total_volume = Total_volume + Cells(i, "G").Value
+                Close_price = Cells(i, "F").Value
+                Yearly_change = Close_price - Open_price
+                Percent_change = Yearly_change / Open_price * 100
+                
+                Range("I" & Summary_pointer).Value = Cells(i, "A").Value
+                Range("J" & Summary_pointer).Value = Yearly_change
+                Range("K" & Summary_pointer).Value = "%" & Percent_change
+                Range("L" & Summary_pointer).Value = Total_volume
+                
+                
+                'Conditional formatting for Yearly Change
+                If Yearly_change > 0 Then
+                    Cells(Summary_pointer, "J").Interior.ColorIndex = 4
+                    
+                ElseIf Yearly_change < 0 Then
+                    Cells(Summary_pointer, "J").Interior.ColorIndex = 3
+                    
+                Else
+                    Cells(Summary_pointer, "J").Interior.ColorIndex = 2
+                    
+                End If
+                
+                
+                'Conditional formatting for Percent Change
+                If Percent_change > 0 Then
+                    Cells(Summary_pointer, "K").Interior.ColorIndex = 4
+                    
+                ElseIf Percent_change < 0 Then
+                    Cells(Summary_pointer, "K").Interior.ColorIndex = 3
+                    
+                Else
+                    Cells(Summary_pointer, "K").Interior.ColorIndex = 2
+                    
+                End If
+                
+                
+                Total_volume = 0
+                Summary_pointer = Summary_pointer + 1
+                Open_price = Cells(i + 1, "C").Value
+                
+                
+            
+            End If
+            
+        Next i
+        
+        
+        'Bonus calculation part
+        Great_increase = 0
+        Great_decrease = 0
+        Great_vol = 0
+        
+    
+        LastRow_colI = ws.Cells(Rows.Count, "I").End(xlUp).Row
+    
+        For i = 2 To LastRow_colI
+            
+            If Cells(i, "K").Value > Great_increase Then
+                Great_increase = Cells(i, "K").Value
+                Ticker_name = Cells(i, "I").Value
+                    
+            End If
+    
+        Next i
+        
+        
+        Cells(2, "P").Value = Ticker_name
+        Cells(2, "Q").Value = Great_increase
+        
+        
+        For i = 2 To LastRow_colI
+            
+            If Cells(i, "K").Value < Great_decrease Then
+                Great_decrease = Cells(i, "K").Value
+                Ticker_name = Cells(i, "I").Value
+                    
+            End If
+    
+        Next i
+        
+        Cells(3, "P").Value = Ticker_name
+        Cells(3, "Q").Value = Great_decrease
+        
+        For i = 2 To LastRow_colI
+            
+            If Cells(i, "L").Value > Great_vol Then
+                Great_vol = Cells(i, "L").Value
+                Ticker_name = Cells(i, "I").Value
+                    
+            End If
+    
+        Next i
+                
+        Cells(4, "P").Value = Ticker_name
+        Cells(4, "Q").Value = Great_vol
+        
+        'Formatting cells to %
+        Cells(2, "Q").NumberFormat = "0.00%"
+        Cells(3, "Q").NumberFormat = "0.00%"
+        
+        Columns("A:Q").AutoFit
+        
+    Next ws
+    MsgBox ("Completed")
+
+End Sub
+
+
